@@ -1,0 +1,27 @@
+--Question 5
+
+WITH profit AS
+( SELECT DATE(order_item.shipped_at) AS Order_Date,
+         product.category AS Product_Category,
+         ROUND(SUM(order_item.sale_price - product.cost),2) AS category_profit
+  FROM `bigquery-public-data.thelook_ecommerce.order_items` AS order_item
+  INNER JOIN `bigquery-public-data.thelook_ecommerce.products` AS product
+  ON order_item.product_id = product.id
+  WHERE order_item.shipped_at BETWEEN "2022-01-01" AND "2022-08-16" AND status = "Complete"
+  GROUP BY 1,2
+  ORDER BY 2,1
+),
+
+tp AS
+( SELECT Order_Date,
+         Product_Category,
+         category_profit,
+         SUM(category_profit) OVER(PARTITION BY product_category, EXTRACT(MONTH FROM order_date) ORDER BY product_category,order_date) AS Total_Profit
+  FROM profit
+  ORDER BY 2,1
+)
+
+SELECT Order_Date,Product_Category, Total_Profit  
+FROM tp 
+WHERE order_date BETWEEN "2022-06-01" AND "2022-08-16" 
+      AND EXTRACT(DAY FROM order_date) = 15;
