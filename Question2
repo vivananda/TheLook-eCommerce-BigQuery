@@ -1,4 +1,6 @@
 --Question 2
+--Create a query to get frequencies, average order values and total number of unique users where status is complete grouped by month
+
 SELECT FORMAT_TIMESTAMP ("%b %Y",TIMESTAMP_TRUNC(shipped_at, MONTH)) AS Month_Year,
        ROUND(COUNT(DISTINCT order_id)/COUNT(DISTINCT user_id),2) AS Frequencies_per_Month,
        ROUND(SUM(sale_price)/COUNT(DISTINCT order_id),2) AS Average_Order_Value,
