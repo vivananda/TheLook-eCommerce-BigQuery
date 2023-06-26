@@ -1,4 +1,6 @@
 --Question 4
+--Get the top 5 least and most profitable product over all time
+
 SELECT Product_ID, Product_Name,Total_Sales, Total_Cost,Total_Gross_Profit,
       CONCAT("Highest ", RANK() OVER (ORDER BY Total_Gross_Profit DESC)) as Rank_Gross_Profit
 FROM
