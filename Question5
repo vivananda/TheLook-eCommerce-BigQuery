@@ -1,4 +1,5 @@
 --Question 5
+--Create a query to get Month to Date of Total Profit in each product categories of past 3 months (current date 15 Aug 2022), breakdown by month and categories
 
 WITH profit AS
 ( SELECT DATE(order_item.shipped_at) AS Order_Date,
