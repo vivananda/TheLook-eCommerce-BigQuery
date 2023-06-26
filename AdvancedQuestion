@@ -1,4 +1,6 @@
 -- Advanced 1
+--Find monthly growth of inventory in percentage breakdown by product categories, ordered by time descendingly
+
 WITH inventory AS
 ( SELECT DATE_TRUNC(DATE(created_at), MONTH) AS Month_Year,
          product_category AS Category,
@@ -25,6 +27,8 @@ ORDER BY 2 ASC, 1 DESC;
 
 
 --Advanced 2
+--Create monthly retention cohorts (the groups or cohorts can be defined based upon the date that user completely purchased a product) and then how many of them (%) coming back for the following months in 2022
+
 WITH complete_order AS
 (   SELECT *
     FROM`bigquery-public-data.thelook_ecommerce.order_items`
