@@ -1,4 +1,6 @@
 --Question 1
+--Create a query to get the number of unique users, number of orders, and total sale price per status and month
+
 
 SELECT FORMAT_TIMESTAMP ("%b %Y",TIMESTAMP_TRUNC(order_items.created_at, MONTH)) as Month_Date,
       order_items.status as Order_Status,
