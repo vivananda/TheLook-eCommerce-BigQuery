@@ -1,0 +1,12 @@
+--Question 3
+
+SELECT 
+      users.id as User_ID,
+      users.email as EMail,
+      users.first_name as FirstName,
+      users.last_name as LastName,
+FROM `bigquery-public-data.thelook_ecommerce.users` users INNER JOIN `bigquery-public-data.thelook_ecommerce.orders` orders
+ON users.id = orders.user_id
+WHERE orders.returned_at BETWEEN "2022-08-01" AND "2022-08-31"
+AND orders.status = "Returned"
+ORDER BY User_ID;
