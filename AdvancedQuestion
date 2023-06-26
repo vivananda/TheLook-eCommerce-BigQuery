@@ -1,0 +1,74 @@
+-- Advanced 1
+WITH inventory AS
+( SELECT DATE_TRUNC(DATE(created_at), MONTH) AS Month_Year,
+         product_category AS Category,
+         COUNT(DISTINCT(id)) AS Inventory_Stock
+  FROM `bigquery-public-data.thelook_ecommerce.inventory_items`
+  GROUP BY 2,1
+ 
+),
+
+inventory_previous AS
+( SELECT Month_Year,
+         Category,
+         Inventory_Stock, 
+         LAG(Inventory_Stock) OVER (PARTITION BY Category ORDER BY Month_Year) AS Previous_Stock
+  FROM inventory
+)
+
+SELECT Month_Year, 
+       Category,
+       CONCAT(ROUND(((Inventory_Stock-Previous_Stock)/Previous_Stock)*100,2), "%") AS Growth_Percentage
+FROM inventory_previous
+WHERE Month_Year BETWEEN '2019-01-01' AND '2022-04-30'
+ORDER BY 2 ASC, 1 DESC;
+
+
+--Advanced 2
+WITH complete_order AS
+(   SELECT *
+    FROM`bigquery-public-data.thelook_ecommerce.order_items`
+    WHERE status = 'Complete' AND DATE_TRUNC(DATE(created_at), MONTH) BETWEEN '2022-01-01' AND '2022-12-31'
+),
+
+cohort_items AS
+(   SELECT DISTINCT (user_id) user_id,
+        MIN(DATE(DATE_TRUNC(created_at, MONTH))) AS cohort_month
+    FROM complete_order
+    GROUP BY 1
+),
+
+user_activities AS 
+(  SELECT DISTINCT (comp_ord.user_id) AS user_id,
+          DATE_DIFF(DATE(DATE_TRUNC(created_at, MONTH)), cohort.cohort_month, MONTH) AS month_number
+    FROM complete_order AS comp_ord
+    LEFT JOIN cohort_items AS cohort
+    ON comp_ord.user_id = cohort.user_id
+        GROUP BY 1,2
+),
+cohort_size AS 
+(   SELECT cohort_month, COUNT(cohort_month) as num_users
+    FROM cohort_items
+    GROUP BY 1 
+    ORDER BY 1),
+
+retention_table AS 
+(   SELECT items.cohort_month AS cohort_month,
+           act.month_number AS month_num,
+           COUNT(items.cohort_month) AS num_users
+    FROM user_activities AS act
+    LEFT JOIN cohort_items AS items
+    ON act.user_id = items.user_id
+    GROUP BY cohort_month, month_number 
+    ORDER BY cohort_month, month_number)
+
+SELECT  ret.cohort_month AS cohort_month,
+        size.num_users AS cohort_size,
+        ret.month_num AS month_number, 
+        ret.num_users AS total_user,
+        ret.num_users/size.num_users AS percentage
+FROM retention_table AS ret
+LEFT JOIN cohort_size AS size
+ON ret.cohort_month = size.cohort_month
+WHERE ret.cohort_month IS NOT NULL 
+ORDER BY 1,2;
