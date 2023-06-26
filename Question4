@@ -1,0 +1,33 @@
+--Question 4
+SELECT Product_ID, Product_Name,Total_Sales, Total_Cost,Total_Gross_Profit,
+      CONCAT("Highest ", RANK() OVER (ORDER BY Total_Gross_Profit DESC)) as Rank_Gross_Profit
+FROM
+(
+SELECT id AS Product_ID, 
+      name  as Product_Name, 
+      ROUND (SUM (retail_price),2) AS Total_Sales,
+      ROUND (SUM (cost),2) as Total_Cost,
+      ROUND (SUM (retail_price-cost),2) AS Total_Gross_Profit,
+FROM `bigquery-public-data.thelook_ecommerce.products`
+GROUP BY 1,2
+ORDER BY 5 DESC
+LIMIT 5
+) GPMax
+
+UNION ALL
+
+SELECT Product_ID, Product_Name,Total_Sales, Total_Cost,Total_Gross_Profit,
+      CONCAT("Lowest ", RANK() OVER (ORDER BY Total_Gross_Profit ASC)) as Rank_Gross_Profit
+FROM
+(
+SELECT id AS Product_ID, 
+      name  as Product_Name, 
+      ROUND (SUM (retail_price),2) AS Total_Sales,
+      ROUND (SUM (cost),2) as Total_Cost,
+      ROUND (SUM (retail_price-cost),2) AS Total_Gross_Profit,
+FROM `bigquery-public-data.thelook_ecommerce.products`
+GROUP BY 1,2
+ORDER BY 5 ASC
+LIMIT 5
+) GPMin
+ORDER BY Total_Gross_Profit DESC;
