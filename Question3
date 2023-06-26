@@ -1,4 +1,5 @@
 --Question 3
+--Find the user id, email, first and last name of users whose status is refunded on Aug 22
 
 SELECT 
       users.id as User_ID,
