@@ -1,0 +1,10 @@
+--Question 2
+SELECT FORMAT_TIMESTAMP ("%b %Y",TIMESTAMP_TRUNC(shipped_at, MONTH)) AS Month_Year,
+       ROUND(COUNT(DISTINCT order_id)/COUNT(DISTINCT user_id),2) AS Frequencies_per_Month,
+       ROUND(SUM(sale_price)/COUNT(DISTINCT order_id),2) AS Average_Order_Value,
+       COUNT(DISTINCT(user_id)) AS Total_Unique_Buyer
+FROM `bigquery-public-data.thelook_ecommerce.order_items` 
+WHERE shipped_at BETWEEN '2019-01-01' AND '2022-09-01' 
+      AND status = 'Complete'
+GROUP BY 1
+ORDER BY PARSE_DATE ("%b %Y", Month_Year);
